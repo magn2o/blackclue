@@ -19,8 +19,8 @@ emb_file_def = {
     b'sttm': (4, False, None, None),
     b'ptnm': (4, False, None, None),
     b'ptrh': (4, False, None, None),
-    b'thum': (8, True,  None, '.jpg'),
-    b'gps ': (4, False, b'\x00',  '.nmea'),
+    b'thum': (8, True,  None, '.thm'),
+    b'gps ': (4, False, b'\x00',  '.gps'),
     b'3gf ': (4, False, b'\xff'*10, '.3gf'),
 }
 
@@ -75,28 +75,6 @@ def dump(file, dump_embedded=False, dump_raw_blocks=False, extended_scan=False, 
                                 if ext is not None:
                                     with open(filebase+ext, "wb") as ofd:
                                         ofd.write(block_data[first:last])
-
-                                if ext == '.3gf':
-                                    with open(filebase+ext+".txt", "wt") as ofd:
-                                        n=0
-                                        while first < last:
-                                            chunk = block_data[first:first+10]
-                                            time_ms = int.from_bytes(chunk[0:4], 'big')
-                                            if time_ms == 0xffffffff:
-                                                break
-                                            acc_1u = int.from_bytes(chunk[4:6], 'big')
-                                            acc_2u = int.from_bytes(chunk[6:8], 'big')
-                                            acc_3u = int.from_bytes(chunk[8:10], 'big')
-                                            acc_1s = int.from_bytes(chunk[4:6], 'big', signed=True)
-                                            acc_2s = int.from_bytes(chunk[6:8], 'big', signed=True)
-                                            acc_3s = int.from_bytes(chunk[8:10], 'big', signed=True)
-                                            ofd.write(("{:8d} "+
-                                                       "{:08x} {:04x} {:04x} {:04x} "+
-                                                       "{:6d} {:6d} {:6d} {:6d}\n").format(
-                                                n, time_ms, acc_1u, acc_2u, acc_3u, time_ms, acc_1s, acc_2s, acc_3s
-                                            ))
-                                            first += 10
-                                            n += 1
 
                             idx += block_len
                         if verbose:
